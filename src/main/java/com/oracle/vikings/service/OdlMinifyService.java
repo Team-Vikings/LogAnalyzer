@@ -47,6 +47,7 @@ public class OdlMinifyService {
 		
 		fileService.increaseCounter();
 		
+		// Map Storing response displayed on UI.
 		Map<String, Object> resContent = new HashMap<String, Object>(); 
 		
 		fileService.createDirIfNotExists();
