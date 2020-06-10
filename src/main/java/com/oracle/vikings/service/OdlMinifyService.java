@@ -42,7 +42,7 @@ public class OdlMinifyService {
 	public void createDirIfNotExists() {
 		System.out.println(SAVE_DIR + "..." + UNZIPPED_DIR + "..." + processDir);
 	}
-
+ //testing1
 	public Map<String, Object> processFile(File f) {
 		
 		fileService.increaseCounter();
