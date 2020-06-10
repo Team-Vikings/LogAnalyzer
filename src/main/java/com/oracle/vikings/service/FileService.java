@@ -69,7 +69,7 @@ public class FileService {
 	};
 
 	public boolean uploadFile(MultipartFile fileIn) throws IOException {
-
+		// This method is used to upload files on server.
 		File convertFile = new File(SAVE_DIR + File.separator + fileIn.getOriginalFilename());
 		convertFile.createNewFile();
 		FileOutputStream fout = new FileOutputStream(convertFile);
