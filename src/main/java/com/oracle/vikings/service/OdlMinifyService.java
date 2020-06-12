@@ -69,7 +69,11 @@ public class OdlMinifyService {
 			String str;
 
 			int counter = 0;
-			boolean skipLine = false;
+            boolean skipLine = false;
+            String value = "",// variable contain value of given row (last sentence)
+                   partialString = ""; // used to hold first 50 character, to reduce scanning over string
+                   logFile = "";
+            int bracketIndex = 0; // variable used to trace ']' end bracket index 
 			while ((str = b.readLine()) != null) {
 				int len = str.length();
 				if (len > 0) {
@@ -80,17 +84,64 @@ public class OdlMinifyService {
 						// Check if line contains any unnecessary data
 						skipLine = skipLine(str);
 						if (!skipLine) {
-							// Add Time Stamp
-							write.append(str.substring(0, str.indexOf(']') + 1));
+                            // Add Time Stamp
+                            bracketIndex = str.indexOf(']');
+							write.append(str.substring(0, bracketIndex 1));
 
+                            partialString = str.substring(bracketIndex, bracketIndex+40);
+							if(partialString.contains("INCIDENT_ERROR")) {
+								logFile = str.substring(str.lastIndexOf("LOG_FILE"),str.lastIndexOf(".log")+4);
+								//incError
+								incError.put(tempStr,logFile);
+								continue;
+                            }
+
+                            int index = 0;
+                            //finding last index of ] for identifying log statement
+                            for(index = len-1; index > 0; index--) {
+                                if(str.charAt(index) == ']')
+                                    break;
+                            }
+                            int lastIndex  = index ;// last index of ']'
+
+                            value = str.substring(index+1, len);
+                            String regex = "Process Region|Region Refresh|MDS|MetaDataObject|MOResolver";
+                            Pattern pattern = Pattern.compile(regex);
+                            //Matching the compiled pattern in the String
+                            Matcher matcher = pattern.matcher(value);
+                            if(matcher.find()) {
+                                patternFound = true;
+                                continue;
+                            }
+
+                            if(value.contains("Evaluate EL") || value.contains("Evaluate Expression")) {
+                                for(; index > 0; index--) {
+                                  if(str.charAt(index) == '[') {
+                                      if(firstIndex) {
+                                          firstIndex = false;
+                                          endBracketIndex = index - 1;
+                                      }else {
+                                          firstIndex = true;
+                                          break;
+                                      }
+                                  }
+                              }
+                                // Appending bracket value first then log statement
+                                value = str.substring(index, endBracketIndex) + value;
+  //				      		System.out.println("Evaluate EL: " + value);
+
+                                //this needs to be tested
+                                write.append(value);
+                                continue;
+                            }
 							// If Execute Query
-							if (str.contains("Execute query") && str.contains("ADF_MESSAGE_CONTEXT_DATA")) {
+							if (value.contains("Execute query") && str.contains("ADF_MESSAGE_CONTEXT_DATA")) {
 								int startIndex = str.lastIndexOf("ADF_MESSAGE_CONTEXT_DATA");
 								int endIndex = str.lastIndexOf("Component");
 								write.append(str.substring(startIndex, endIndex));
 							}
 							
-							int index = str.lastIndexOf(']');
+							index = lastIndex;
 							if(len-index<4)
 								index = str.lastIndexOf("log]")+3;
 							
@@ -101,11 +152,7 @@ public class OdlMinifyService {
 								lstErrors.add(tempStr);
 							}
 							
-							if(str.contains("INCIDENT_ERROR")) {
-								String logFile = str.substring(str.lastIndexOf("LOG_FILE"),str.lastIndexOf(".log")+4);
-								//incError
-								incError.put(tempStr,logFile);
-							}							
+														
 							write.append(tempStr);
 						}
 					}
