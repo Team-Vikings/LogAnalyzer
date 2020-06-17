@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.oracle.vikings.service.ErrorHandlerService;
 import com.oracle.vikings.service.FileService;
 import com.oracle.vikings.service.OdlMinifyService;
 import com.oracle.vikings.service.PlSqlService;
+import com.oracle.vikings.service.RetroService;
 
 @Controller
 @PropertySource("classpath:custom.properties")
@@ -37,6 +39,10 @@ public class FileController {
 	OdlMinifyService odlMinifyService;
 	@Autowired
 	PlSqlService plSqlService;
+	@Autowired
+	RetroService retroService;
+	@Autowired
+	ErrorHandlerService errorHandlerService;
 
 	@GetMapping("/upload")
 	public String welcome(Model model) {
@@ -99,6 +105,43 @@ public class FileController {
 		model.addAttribute("listProc", listProc);
 
 		return "plsql";
+	}
+	
+	@RequestMapping(value = "/LogAnalyzer/analyzeRetroLog", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public String processRetroLog(@RequestParam("file") MultipartFile fileIn, Model model) throws IOException {
+		System.out.println("Hiteshree was here");
+		fileService.uploadFile(fileIn);
+
+		String fileName = fileIn.getOriginalFilename();
+
+		File file = fileService.extractFile(fileName, "saveDir");
+
+		// Processing Retro GMFZT Logs
+		LinkedHashMap<String, String> validateMap = errorHandlerService.validateGMFZTLogFile(file);
+		if (validateMap.get("valid").equals("FALSE")) {
+			validateMap.remove("valid");
+			model.addAttribute("validateMap", validateMap);
+		} else {
+			LinkedHashMap<String, String> errorInfo = errorHandlerService.checkIfFlowHasErrorred(file);
+			if (null != errorInfo) {
+				model.addAttribute("errorInfo", errorInfo);
+			} else {
+				LinkedHashMap<String, String> basicRetroInfo = retroService.processRetroData(file);
+				model.addAttribute("retroInfo", basicRetroInfo);
+				List<LinkedHashMap<String, String>> retroEntries = retroService.fetchGeneratedRetroEntries(file);
+				model.addAttribute("retroEntryList", retroEntries);
+				List<LinkedHashMap<String, String>> redoActions = retroService.fetchRedoingActions(file);
+				model.addAttribute("redoActionList", redoActions);
+				LinkedHashMap<String, String> diffInfo = retroService.findOriginalNewDifference(file);
+				model.addAttribute("originalValFileName", diffInfo.get("originalValFileName"));
+				model.addAttribute("newValFileName", diffInfo.get("newValFileName"));
+				model.addAttribute("originalValFileWithOutPath", diffInfo.get("originalValFileWithOutPath"));
+				model.addAttribute("newValFileWithOutPath", diffInfo.get("newValFileWithOutPath"));
+				LinkedHashMap<String, String> outRetrodiagFile = retroService.generateRetroDiagnosticFile(basicRetroInfo); 
+				model.addAttribute("retroDiagFileName",outRetrodiagFile.get("retroDiagFileName"));
+			}
+		}
+		return "retro";
 	}
 
 }

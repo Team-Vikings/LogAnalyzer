@@ -44,6 +44,7 @@
 						<li>Yash Shah</li>
 						<li>Ashutosh Parmar</li>
 						<li>Rohan Jain</li>
+						<li>Hiteshree Neve</li>
 						<li>Himanshu Ramani</li>
 						<li>Darshan Dadhaniya</li>
 					</ul> 
@@ -74,9 +75,19 @@
     <li class="nav-item">
       <a class="nav-link" href="/LogAnalyzer/showPlSql">PL/Sql Analyzer</a>
     </li>
-    <li class="nav-item">
+    <!-- <li class="nav-item">
       <a class="nav-link disabled" href="#" data-toggle="tooltip" title="Coming Soon!">GMFZT Analyzer</a>
-    </li>
+    </li>-->
+    <li class="dropdown nav-item">
+            <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="true"> <span class="nav-label">GMFZT Analyzer</span> <span class="caret"></span></a>
+            <ul class="dropdown-menu bg-dark">
+              <li><a class="nav-link" href="/LogAnalyzer/analyzeRetroLog">Retro</a></li>
+              <li><a class="nav-link disabled" href="#"  data-toggle="tooltip" data-placement="right" title="Coming Soon!">Quickpay </a></li>
+              <li><a class="nav-link disabled" href="#"  data-toggle="tooltip" data-placement="right" title="Coming Soon!">Costing</a></li>
+              <li><a class="nav-link disabled" href="#"  data-toggle="tooltip" data-placement="right"  title="Coming Soon!">Proration</a></li>
+              <!-- <li><a class="nav-link disabled" href="#"  data-toggle="tooltip" data-placement="right" title="Coming Soon!">Rate</a></li> -->
+            </ul>
+      </li>
   </ul>
   
 </nav>
