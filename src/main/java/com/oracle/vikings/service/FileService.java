@@ -38,7 +38,7 @@ public class FileService {
 		createDir(processDir);
 		createDir(reqLogDir);
 	}
-
+// Method to increase counter
 	public void increaseCounter() {
 		String fileName = reqLogDir + File.separator+"reqCounter.properties";
 		FileOutputStream out;

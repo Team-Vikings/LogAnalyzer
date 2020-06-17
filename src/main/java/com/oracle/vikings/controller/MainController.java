@@ -28,4 +28,10 @@ public class MainController {
 	public String showPlSql() {
 		return "plsql";
 	}
+	
+	@GetMapping("/LogAnalyzer/analyzeRetroLog")
+	public String analyzeRetroLog() {
+		return "retro";
+	}
+	
 }
