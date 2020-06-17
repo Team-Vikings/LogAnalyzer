@@ -44,6 +44,7 @@
 						<li>Yash Shah</li>
 						<li>Ashutosh Parmar</li>
 						<li>Rohan Jain</li>
+						<li>Hiteshree Neve</li>
 						<li>Himanshu Ramani</li>
 						<li>Darshan Dadhaniya</li>
 					</ul> 
