@@ -44,17 +44,13 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<!-- Apache Commons FileUpload -->
 		<dependency>
@@ -71,18 +67,12 @@
 		</dependency>
 
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-                	<executable>true</executable>
-                	<jvmArguments>-Dfile.encoding=UTF8 -Dspring.profiles.active="production"</jvmArguments>
-            	</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
