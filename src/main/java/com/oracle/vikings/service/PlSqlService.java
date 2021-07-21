@@ -1,7 +1,12 @@
+/*
+ * @author 			 : Yash Shah(yvshah)
+ * @updated 21/07/21 : Rohan Jain(rohajain)
+ */
 package com.oracle.vikings.service;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -15,6 +20,8 @@ import java.util.stream.Collectors;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -125,26 +132,32 @@ public class PlSqlService {
 
 		ArrayList<Map<String, String>> tempData = new ArrayList<>();
 		int lineCount = 1;
-
+		
+		LineIterator fileRead;
 		try {
-			Scanner myScanner = new Scanner(myFile);
-			while (myScanner.hasNext()) {
-				Map<String, String> tempMap = new HashMap<>();
-				String currLine = myScanner.nextLine();
-				currLine = currLine.replaceAll("\\[.*]", "");
-				tempMap.put("lineNo", String.valueOf(lineCount));
-				tempMap.put("data", currLine);
+			fileRead = FileUtils.lineIterator(myFile, "UTF-8");
+			try {
+			    
+				    while (fileRead.hasNext()) {
+				    	Map<String, String> tempMap = new HashMap<>();
+						String currLine = fileRead.nextLine();
+						currLine = currLine.replaceAll("\\[.*]", "");
+						tempMap.put("lineNo", String.valueOf(lineCount));
+						tempMap.put("data", currLine);
 
-				tempData.add(tempMap);
+						tempData.add(tempMap);
 
-				lineCount++;
+						lineCount++;
+
+					}
+			} finally {
+			    LineIterator.closeQuietly(fileRead);
 			}
-			myScanner.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		return tempData;
 	}
 
