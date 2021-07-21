@@ -1,5 +1,6 @@
 /*
- * @author : Hiteshree Neve(hneve)
+ * @author 			 : Hiteshree Neve(hneve)
+ * @updated 21/07/21 : Rohan Jain(rohajain)
  */
 
 package com.oracle.vikings.service;
@@ -24,6 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -47,92 +50,66 @@ public class RetroService {
 
 	List<String> redoingActionList = new ArrayList<>();
 
-	/* Method to fetch all the basis retro details from logs */
+	/* Method to fetch all the basic retro details from logs */
 	public LinkedHashMap<String, String> processRetroData(File file) {
-		String methodName = "processRetroData";
-		//System.out.println("In Retro Service - " + methodName);
-		String fileName = UNZIPPED_DIR + File.separator + file.getName();
-		List<String> filteredList;
+		
 		LinkedHashMap<String, String> responseMap = new LinkedHashMap<String, String>();
 
-		// TODO : Check if this approach is efficient than Scanner Approach
-		// Fetch Info using Stream API
-		// Fetch below lines from logs and put it in map
-		/*
-		 * try (Stream<String> lines = Files.lines(Paths.get(fileName))) { filteredList
-		 * = lines.filter(line -> line.startsWith("LOGGING =") ||
-		 * line.startsWith("action_type =") ||
-		 * line.startsWith("Action Parameter THREADS") ||
-		 * line.startsWith("new payroll_action_id") ||
-		 * line.startsWith("pay rel id          =") ||
-		 * line.startsWith("Effective Date   :") ||
-		 * line.startsWith("PERSON_ID =")).distinct().collect(Collectors.toList()); ;
-		 * 
-		 * filteredList.forEach(//System.out::println);
-		 * 
-		 * Iterator<String> it = filteredList.iterator();
-		 * 
-		 * while (it.hasNext()) { String currLine = it.next(); String[] arr =
-		 * currLine.split("=|:"); if (arr[0].startsWith("LOGGING")) {
-		 * responseMap.put("Logging", arr[1]); } else if
-		 * (arr[0].startsWith("action_type")) { responseMap.put("ActionType", arr[1]); }
-		 * else if (arr[0].startsWith("Action Parameter THREADS")) {
-		 * responseMap.put("Threads", arr[1]); } else if
-		 * (arr[0].startsWith("new payroll_action_id")) {
-		 * responseMap.put("PayrollActionId", arr[1]); } else if
-		 * (arr[0].startsWith("pay rel id")) { responseMap.put("PayrollRelationshipId",
-		 * arr[1]); } else if (arr[0].startsWith("Effective Date")) {
-		 * responseMap.put("EffectiveDate", arr[1].trim().split(" ")[0]); } else if
-		 * (arr[0].startsWith("PERSON_ID") && (arr[1].trim() != " " &&
-		 * !arr[1].trim().isEmpty())) { responseMap.put("PersonId", arr[1]); } }
-		 * 
-		 * } catch (IOException io) { io.printStackTrace(); }
-		 */
-
+		//String methodName = "processRetroData";
+		//System.out.println("In Retro Service - " + methodName);
+		
+		LineIterator fileRead;
 		try {
-			Scanner scanner = new Scanner(file);
+			fileRead = FileUtils.lineIterator(file, "UTF-8");
+			try {
+			     // Add details of one retro entry in Map and add it in the list
+				    while (fileRead.hasNext()) {
+						String currentLine = fileRead.nextLine();
+						if (currentLine.startsWith("LOGGING =")) {
+							String[] logging = currentLine.split("=");
+							//System.out.println(methodName + " - Logging : " + logging[1]);
+							responseMap.put("Logging", logging[1]);
+						} else if (currentLine.startsWith("action_type =")) {
+							String[] actionType = currentLine.split("=");
+							//System.out.println(methodName + " - ActionType : " + actionType[1]);
+							responseMap.put("ActionType", actionType[1]);
+						} else if (currentLine.startsWith("Action Parameter THREADS")) {
+							String[] threads = currentLine.split("=");
+							//System.out.println(methodName + " - Threads : " + threads[1]);
+							responseMap.put("Threads", threads[1]);
+						} else if (currentLine.startsWith("new payroll_action_id")) {
+							String[] pactId = currentLine.split("=");
+							//System.out.println(methodName + " - PayrollActionId : " + pactId[1]);
+							responseMap.put("PayrollActionId", pactId[1]);
+						} else if (currentLine.startsWith("pay rel id          =")) {
+							String[] payRelId = currentLine.split("=");
+							//System.out.println(methodName + " - PayrollRelationshipId : " + payRelId[1]);
+							responseMap.put("PayrollRelationshipId", payRelId[1]);
+						} else if (currentLine.startsWith("Effective Date   :")) {
+							String[] effectiveDate = currentLine.split(":");
+							//System.out.println(methodName + " - EffectiveDate : " + effectiveDate[1]);
+							responseMap.put("EffectiveDate", effectiveDate[1].trim().split(" ")[0]);
+						} else if (currentLine.startsWith("PERSON_ID =")) {
+							String[] personId = currentLine.split("=");
+							if (personId[1].trim() != " " && !personId[1].trim().isEmpty()) {
+								//System.out.println(methodName + " - PersonId : " + personId[1]);
+								responseMap.put("PersonId", personId[1]);
+							}
+							break;
 
-			while (scanner.hasNext()) {
-				String currentLine = (String) scanner.nextLine();
-				if (currentLine.startsWith("LOGGING =")) {
-					String[] logging = currentLine.split("=");
-					//System.out.println(methodName + " - Logging : " + logging[1]);
-					responseMap.put("Logging", logging[1]);
-				} else if (currentLine.startsWith("action_type =")) {
-					String[] actionType = currentLine.split("=");
-					//System.out.println(methodName + " - ActionType : " + actionType[1]);
-					responseMap.put("ActionType", actionType[1]);
-				} else if (currentLine.startsWith("Action Parameter THREADS")) {
-					String[] threads = currentLine.split("=");
-					//System.out.println(methodName + " - Threads : " + threads[1]);
-					responseMap.put("Threads", threads[1]);
-				} else if (currentLine.startsWith("new payroll_action_id")) {
-					String[] pactId = currentLine.split("=");
-					//System.out.println(methodName + " - PayrollActionId : " + pactId[1]);
-					responseMap.put("PayrollActionId", pactId[1]);
-				} else if (currentLine.startsWith("pay rel id          =")) {
-					String[] payRelId = currentLine.split("=");
-					//System.out.println(methodName + " - PayrollRelationshipId : " + payRelId[1]);
-					responseMap.put("PayrollRelationshipId", payRelId[1]);
-				} else if (currentLine.startsWith("Effective Date   :")) {
-					String[] effectiveDate = currentLine.split(":");
-					//System.out.println(methodName + " - EffectiveDate : " + effectiveDate[1]);
-					responseMap.put("EffectiveDate", effectiveDate[1].trim().split(" ")[0]);
-				} else if (currentLine.startsWith("PERSON_ID =")) {
-					String[] personId = currentLine.split("=");
-					if (personId[1].trim() != " " && !personId[1].trim().isEmpty()) {
-						//System.out.println(methodName + " - PersonId : " + personId[1]);
-						responseMap.put("PersonId", personId[1]);
+						}
+
 					}
-					break;
-
-				}
-				// scanner.nextLine();
+			} finally {
+			    LineIterator.closeQuietly(fileRead);
 			}
-			scanner.close();
-		} catch (FileNotFoundException e) { // TODO Auto-generated catch block
-			e.printStackTrace();
+
+
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
+
 
 		//System.out.println("--->" + methodName + " " + responseMap);
 		//System.out.println("Out Retro Service - " + methodName);
@@ -149,54 +126,50 @@ public class RetroService {
 		List<LinkedHashMap<String, String>> retroEntriesList = new ArrayList<>();
 		LinkedHashMap<String, String> retroEntriesMap = null;
 		String currentLog = null;
-		int lineo =0;
-		Scanner scanner = null;
+		long lineo =0;
+		LineIterator fileRead;
 		try {
-			 scanner = new Scanner(file,StandardCharsets.UTF_8.name());
-			// Add details of one retro entry in Map and add it in the list
-			while (scanner.hasNext()) {
-				String currentLine = scanner.nextLine();
-				if(lineo == 475334) {
-					//System.out.print(lineo);
-				}
-				lineo++;
-				
-				if (currentLine.equalsIgnoreCase("Parameters passed to insert_retro_entry")) {
-					retroEntriesMap = new LinkedHashMap<String, String>();
-					currentLog = "Start";
-				} else if (currentLine.startsWith("created entry ")) {
-					String[] arr = currentLine.split(" ");
-					retroEntriesMap.put("RetroEntryID", arr[2]);
-					retroEntriesList.add(retroEntriesMap);
-					currentLog = "End";
-				} else if (currentLine.startsWith("Ended processing at")) {
-					break;
-				} else if (currentLog != null && currentLog.equals("Start")) {
-					////System.out.println(currentLine);
-					String[] arr = currentLine.split("=");
-					if (arr[0].startsWith("original")) {
-						retroEntriesMap.put("SourceRRID", arr[2]);
-					} else if (arr[0].startsWith("v_src_rrid")) {
-						retroEntriesMap.put("SourceRRID", arr[1]);
-					} else
-						retroEntriesMap.put(arr[0], arr[1]);
-				}
+			fileRead = FileUtils.lineIterator(file, "UTF-8");
+			try {
+			     // Add details of one retro entry in Map and add it in the list
+				    while (fileRead.hasNext()) {
+						String currentLine = fileRead.nextLine();
+						//if(lineo == 5033077) {
+							//System.out.println(lineo);
+						//}
+						lineo++;
+						
+						if (currentLine.equalsIgnoreCase("Parameters passed to insert_retro_entry")) {
+							retroEntriesMap = new LinkedHashMap<String, String>();
+							currentLog = "Start";
+						} else if (currentLine.startsWith("created entry ")) {
+							String[] arr = currentLine.split(" ");
+							retroEntriesMap.put("RetroEntryID", arr[2]);
+							retroEntriesList.add(retroEntriesMap);
+							currentLog = "End";
+						} else if (currentLine.startsWith("Ended processing at")) {
+							break;
+						} else if (currentLog != null && currentLog.equals("Start")) {
+							////System.out.println(currentLine);
+							String[] arr = currentLine.split("=");
+							if (arr[0].startsWith("original")) {
+								retroEntriesMap.put("SourceRRID", arr[2]);
+							} else if (arr[0].startsWith("v_src_rrid")) {
+								retroEntriesMap.put("SourceRRID", arr[1]);
+							} else
+								retroEntriesMap.put(arr[0], arr[1]);
+						}
 
+					}
+					//System.out.print(lineo);
+			} finally {
+			    LineIterator.closeQuietly(fileRead);
 			}
 
-			
-
-		} catch (FileNotFoundException e) {
+		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e1.printStackTrace();
 		}
-		scanner.close();
 		//System.out.println(lineo);
 		// Remove unwanted details of Retro Entry from Map
 		// TODO : Check if below code can be removed and handled in UI
@@ -252,30 +225,32 @@ public class RetroService {
 			PrintWriter originalRun = new PrintWriter(new FileWriter(originalValFilePath));
 			PrintWriter newRun = new PrintWriter(new FileWriter(newValFilePath));
 			PrintWriter currentLog = null;
-
+			LineIterator fileRead = FileUtils.lineIterator(file, "UTF-8");
 			//System.out.println("--->" + methodName + " : Original Value File Name = " + originalValFilePath);
 			//System.out.println("--->" + methodName + " : New Value File Name = " + newValFilePath);
-
-			Scanner scanner = new Scanner(file);
-			while (scanner.hasNextLine()) {
-				String currentLine = scanner.nextLine();
-				if (currentLine.equalsIgnoreCase("Original Values")) {
-					currentLog = originalRun;
-				} else if (currentLine.equalsIgnoreCase("New Values")) {
-					currentLog = newRun;
-				} else if (currentLine.startsWith("Campare for Master")) {
-					scanner.close();
-					break;
-				} else if (currentLog != null)
-					currentLog.println(currentLine);
+			try {
+				while (fileRead.hasNext()) {
+					String currentLine = fileRead.nextLine();
+					if (currentLine.equalsIgnoreCase("Original Values")) {
+							currentLog = originalRun;
+					} else if (currentLine.equalsIgnoreCase("New Values")) {
+						currentLog = newRun;
+					} else if (currentLine.startsWith("Campare for Master")) {
+						break;
+					} else if (currentLog != null)
+						currentLog.println(currentLine);
+			    }
+				responseMap.put("originalValFileName", originalValFilePath);
+				responseMap.put("newValFileName", newValFilePath);
+				responseMap.put("originalValFileWithOutPath", File.separator + "OriginalValues.txt");
+				responseMap.put("newValFileWithOutPath", File.separator + "NewValues.txt");
+				
+			} finally {
+				 LineIterator.closeQuietly(fileRead);
+				 originalRun.close();
+				 newRun.close();
 			}
-			originalRun.close();
-			newRun.close();
-			scanner.close();
-			responseMap.put("originalValFileName", originalValFilePath);
-			responseMap.put("newValFileName", newValFilePath);
-			responseMap.put("originalValFileWithOutPath", File.separator + "OriginalValues.txt");
-			responseMap.put("newValFileWithOutPath", File.separator + "NewValues.txt");
+			
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -283,8 +258,7 @@ public class RetroService {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-
+		} 
 		//System.out.println("Out Retro Service - " + methodName);
 		return responseMap;
 	}
