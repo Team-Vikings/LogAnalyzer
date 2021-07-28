@@ -1,24 +1,20 @@
 /*
  * @author 			 : Yash Shah(yvshah)
  * @updated 21/07/21 : Rohan Jain(rohajain)
+ * @updated 29/07/21 : Rohan Jain(rohajain)
  */
 package com.oracle.vikings.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -37,7 +33,7 @@ public class PlSqlService {
 	String UNZIPPED_DIR;
 	@Value("${processDir}")
 	String processDir;
-	
+
 	@Autowired
 	FileService fileService;
 
@@ -48,9 +44,9 @@ public class PlSqlService {
 	public static Pattern step = Pattern.compile("\\d+");
 
 	public LinkedHashMap<String, String> processPlSqlData(File file) {
-		
+
 		fileService.increaseCounter();
-		
+
 		List<Map<String, String>> myData = new ArrayList<>();
 
 		// Save Required Data
@@ -80,7 +76,7 @@ public class PlSqlService {
 				.forEachOrdered(t -> sortedData.put(t.getKey(), t.getValue()));
 
 		System.out.println(sortedData);
-		
+
 		return sortedData;
 
 	}
@@ -132,26 +128,26 @@ public class PlSqlService {
 
 		ArrayList<Map<String, String>> tempData = new ArrayList<>();
 		int lineCount = 1;
-		
+
 		LineIterator fileRead;
 		try {
 			fileRead = FileUtils.lineIterator(myFile, "UTF-8");
 			try {
-			    
-				    while (fileRead.hasNext()) {
-				    	Map<String, String> tempMap = new HashMap<>();
-						String currLine = fileRead.nextLine();
-						currLine = currLine.replaceAll("\\[.*]", "");
-						tempMap.put("lineNo", String.valueOf(lineCount));
-						tempMap.put("data", currLine);
 
-						tempData.add(tempMap);
+				while (fileRead.hasNext()) {
+					Map<String, String> tempMap = new HashMap<>();
+					String currLine = fileRead.nextLine();
+					currLine = currLine.replaceAll("\\[.*]", "");
+					tempMap.put("lineNo", String.valueOf(lineCount));
+					tempMap.put("data", currLine);
 
-						lineCount++;
+					tempData.add(tempMap);
 
-					}
+					lineCount++;
+
+				}
 			} finally {
-			    LineIterator.closeQuietly(fileRead);
+				fileRead.close();
 			}
 
 		} catch (IOException e1) {
