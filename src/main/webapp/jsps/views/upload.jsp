@@ -14,8 +14,8 @@
 							</label> <span>or drop file here </span>
 						</div>
 						<div id="afterUpload">
-							<i class="fa fa-check" id="fileCheck" aria-hidden="true"></i> <span id="fileNameMsg">Please
-								select File</span>
+							<i class="fa fa-check" id="fileCheck" aria-hidden="true"></i>
+							<span id="fileNameMsg">Please select File</span>
 						</div>
 
 					</div>
@@ -29,8 +29,7 @@
 	<div class="container-fluid">
 		<div class="d-flex justify-content-center">
 			<div id="submitbutton">
-				<button id="btnShowPopup" class="btn btn-dark" type="submit">Upload
-					File</button>
+				<button id="btnShowPopup" class="btn btn-dark" type="submit">Upload File</button>
 			</div>
 		</div>
 	</div>
@@ -47,8 +46,7 @@
 				</div>
 				<div class="modal-body"></div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-danger" data-dismiss="modal">
-						Close</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
 				</div>
 			</div>
 		</div>
