@@ -1,5 +1,5 @@
 
-(function() {
+(function () {
 
 	// getElementById
 	function $id(id) {
@@ -18,7 +18,7 @@
 	function FileDragHover(e) {
 		e.stopPropagation();
 		e.preventDefault();
-		e.target.className = (e.type == "dragover" ? "hover" : "");
+		e.type == "dragover" ? e.target.className += " hover" : e.target.classList.remove("hover");
 		$id("fileselect").file = e.dataTransfer.files;
 	}
 
@@ -74,7 +74,7 @@
 			filedrag.style.display = "block";
 
 			// remove submit button
-//			submitbutton.style.display = "none";
+			// submitbutton.style.display = "none";
 		}
 
 	}
