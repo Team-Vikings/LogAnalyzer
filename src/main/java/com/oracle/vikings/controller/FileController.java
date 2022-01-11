@@ -86,6 +86,8 @@ public class FileController {
 		model.addAttribute("filePath", lstMsgs.get("fileName"));
 		model.addAttribute("lstError", lstMsgs.get("lstError"));
 		model.addAttribute("incError", lstMsgs.get("incError"));
+		model.addAttribute("exceptionStack", lstMsgs.get("exceptionStack"));
+
 
 		return "minifyOdl";
 	}
