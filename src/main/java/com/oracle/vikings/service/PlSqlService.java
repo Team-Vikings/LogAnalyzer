@@ -92,7 +92,7 @@ public class PlSqlService {
 			if (stepMT.find())
 				stepCount = stepMT.group().trim();
 			// System.err.println(methodName+stepCount);
-			if (Integer.parseInt(stepCount) > 800)
+			if (!"".equals(stepCount)&&Integer.parseInt(stepCount) > 800) 
 				formatData.put(methodName, lineNo);
 			else
 				formatData.remove(methodName);
